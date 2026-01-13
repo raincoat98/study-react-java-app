@@ -28,10 +28,9 @@ const TodoPage = () => {
       <nav className="bg-white shadow-md">
         <div className="max-w-4xl mx-auto px-4 py-6">
           <div className="flex justify-between items-center mb-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-800">My Todo List</h1>
-              <p className="text-sm text-gray-600">{user?.name}님 환영합니다!</p>
-            </div>
+            <Link to="/" className="text-2xl font-bold text-gray-800">
+              My Todo List
+            </Link>
             <button
               onClick={handleLogout}
               className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200"
@@ -40,6 +39,12 @@ const TodoPage = () => {
             </button>
           </div>
           <div className="flex gap-4">
+            <Link
+              to="/"
+              className="px-4 py-2 text-gray-700 hover:text-blue-600 font-semibold transition duration-200"
+            >
+              홈
+            </Link>
             <Link
               to="/dashboard"
               className="px-4 py-2 text-gray-700 hover:text-blue-600 font-semibold transition duration-200"
