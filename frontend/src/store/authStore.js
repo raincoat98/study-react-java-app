@@ -4,6 +4,7 @@ import axiosInstance from '../api/axiosConfig';
 
 const useAuthStore = create((set) => ({
   user: null,
+  token: null,
   isAuthenticated: false,
   isLoading: true,
   isInitialized: false,
@@ -21,6 +22,7 @@ const useAuthStore = create((set) => ({
           try {
             const response = await axiosInstance.get('/auth/me');
             set({
+              token,
               user: response.data,
               isAuthenticated: true,
               isLoading: false,
@@ -29,6 +31,7 @@ const useAuthStore = create((set) => ({
           } catch {
             // 사용자 정보 조회 실패 시 최소한의 정보만 사용
             set({
+              token,
               user: { email: decoded.sub },
               isAuthenticated: true,
               isLoading: false,
@@ -65,6 +68,7 @@ const useAuthStore = create((set) => ({
   login: (user, token) => {
     localStorage.setItem('token', token);
     set({
+      token,
       user,
       isAuthenticated: true,
       error: null,
@@ -75,6 +79,7 @@ const useAuthStore = create((set) => ({
   logout: () => {
     localStorage.removeItem('token');
     set({
+      token: null,
       user: null,
       isAuthenticated: false,
       error: null,

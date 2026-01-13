@@ -1,61 +1,28 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import useAuthStore from '../store/authStore';
-
-const API_BASE_URL = 'http://localhost:8080/api/todos';
+import axiosInstance from '../api/axiosConfig';
 
 // Get todos for current user
 export const useTodos = () => {
-  const { token } = useAuthStore();
-
   return useQuery({
     queryKey: ['todos'],
     queryFn: async () => {
-      if (!token) {
-        throw new Error('No authentication token');
-      }
-
-      const response = await fetch(API_BASE_URL, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch todos');
-      }
-
-      return response.json();
+      const response = await axiosInstance.get('/todos');
+      return response.data;
     },
-    enabled: !!token,
   });
 };
 
 // Create a new todo
 export const useCreateTodo = () => {
-  const { token } = useAuthStore();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (title) => {
-      if (!token) {
-        throw new Error('No authentication token');
-      }
-
-      const response = await fetch(API_BASE_URL, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ title, completed: false }),
+      const response = await axiosInstance.post('/todos', {
+        title,
+        completed: false,
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to create todo');
-      }
-
-      return response.json();
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['todos'] });
@@ -65,29 +32,15 @@ export const useCreateTodo = () => {
 
 // Update a todo
 export const useUpdateTodo = () => {
-  const { token } = useAuthStore();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({ id, title, completed }) => {
-      if (!token) {
-        throw new Error('No authentication token');
-      }
-
-      const response = await fetch(`${API_BASE_URL}/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ title, completed }),
+      const response = await axiosInstance.put(`/todos/${id}`, {
+        title,
+        completed,
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to update todo');
-      }
-
-      return response.json();
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['todos'] });
@@ -97,26 +50,11 @@ export const useUpdateTodo = () => {
 
 // Delete a todo
 export const useDeleteTodo = () => {
-  const { token } = useAuthStore();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (id) => {
-      if (!token) {
-        throw new Error('No authentication token');
-      }
-
-      const response = await fetch(`${API_BASE_URL}/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to delete todo');
-      }
+      await axiosInstance.delete(`/todos/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['todos'] });
