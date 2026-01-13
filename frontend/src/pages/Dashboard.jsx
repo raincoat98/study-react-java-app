@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
 
 const Dashboard = () => {
@@ -24,14 +24,30 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <nav className="bg-white shadow-md">
-        <div className="max-w-7xl mx-auto px-4 py-6 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
-          <button
-            onClick={handleLogout}
-            className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200"
-          >
-            로그아웃
-          </button>
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="flex justify-between items-center mb-4">
+            <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
+            <button
+              onClick={handleLogout}
+              className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200"
+            >
+              로그아웃
+            </button>
+          </div>
+          <div className="flex gap-4">
+            <Link
+              to="/dashboard"
+              className="px-4 py-2 text-gray-700 hover:text-blue-600 font-semibold transition duration-200"
+            >
+              프로필
+            </Link>
+            <Link
+              to="/todos"
+              className="px-4 py-2 text-gray-700 hover:text-blue-600 font-semibold transition duration-200"
+            >
+              할 일 목록
+            </Link>
+          </div>
         </div>
       </nav>
 

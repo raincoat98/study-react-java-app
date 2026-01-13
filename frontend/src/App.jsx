@@ -5,6 +5,7 @@ import useAuthStore from './store/authStore';
 import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './pages/Dashboard';
+import TodoPage from './pages/TodoPage';
 
 const queryClient = new QueryClient();
 
@@ -35,6 +36,10 @@ function App() {
           <Route
             path="/dashboard"
             element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/todos"
+            element={isAuthenticated ? <TodoPage /> : <Navigate to="/login" />}
           />
           <Route path="/" element={<Navigate to="/dashboard" />} />
         </Routes>
