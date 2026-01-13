@@ -9,11 +9,16 @@ import Dashboard from './pages/Dashboard';
 const queryClient = new QueryClient();
 
 function App() {
-  const { isAuthenticated, initAuth } = useAuthStore();
+  const { isAuthenticated, initAuth, isInitialized } = useAuthStore();
 
   useEffect(() => {
     initAuth();
-  }, [initAuth]);
+  }, []);
+
+  // 초기화 완료 전까지 아무것도 렌더링하지 않음
+  if (!isInitialized) {
+    return null;
+  }
 
   return (
     <QueryClientProvider client={queryClient}>

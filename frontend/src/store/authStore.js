@@ -1,31 +1,63 @@
 import { create } from 'zustand';
-import jwtDecode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
+import axiosInstance from '../api/axiosConfig';
 
 const useAuthStore = create((set) => ({
   user: null,
   isAuthenticated: false,
-  isLoading: false,
+  isLoading: true,
+  isInitialized: false,
   error: null,
 
-  // 초기화 - 로컬 스토리지에서 토큰 복원
-  initAuth: () => {
+  // 초기화 - 로컬 스토리지에서 토큰 복원 및 사용자 정보 조회
+  initAuth: async () => {
+    set({ isLoading: true });
     const token = localStorage.getItem('token');
     if (token) {
       try {
         const decoded = jwtDecode(token);
         if (decoded.exp * 1000 > Date.now()) {
-          set({
-            user: decoded,
-            isAuthenticated: true,
-          });
+          // 토큰이 유효하면 백엔드에서 사용자 정보 조회
+          try {
+            const response = await axiosInstance.get('/auth/me');
+            set({
+              user: response.data,
+              isAuthenticated: true,
+              isLoading: false,
+              isInitialized: true,
+            });
+          } catch {
+            // 사용자 정보 조회 실패 시 최소한의 정보만 사용
+            set({
+              user: { email: decoded.sub },
+              isAuthenticated: true,
+              isLoading: false,
+              isInitialized: true,
+            });
+          }
         } else {
           localStorage.removeItem('token');
-          set({ isAuthenticated: false, user: null });
+          set({
+            isAuthenticated: false,
+            user: null,
+            isLoading: false,
+            isInitialized: true,
+          });
         }
-      } catch (error) {
+      } catch {
         localStorage.removeItem('token');
-        set({ isAuthenticated: false, user: null });
+        set({
+          isAuthenticated: false,
+          user: null,
+          isLoading: false,
+          isInitialized: true,
+        });
       }
+    } else {
+      set({
+        isLoading: false,
+        isInitialized: true,
+      });
     }
   },
 
