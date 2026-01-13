@@ -1,12 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '../api/axiosConfig';
 
-// Get todos for current user
-export const useTodos = () => {
+// Get todos for current user with pagination
+export const useTodos = (page = 0, size = 10) => {
   return useQuery({
-    queryKey: ['todos'],
+    queryKey: ['todos', page, size],
     queryFn: async () => {
-      const response = await axiosInstance.get('/todos');
+      const response = await axiosInstance.get(`/todos?page=${page}&size=${size}`);
       return response.data;
     },
   });

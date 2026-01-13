@@ -6,6 +6,9 @@ import com.auth.entity.Todo;
 import com.auth.entity.User;
 import com.auth.repository.TodoRepository;
 import com.auth.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,6 +31,14 @@ public class TodoService {
                 .stream()
                 .map(TodoResponse::from)
                 .collect(Collectors.toList());
+    }
+
+    public Page<TodoResponse> getTodosByEmailWithPagination(String email, int page, int size) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Pageable pageable = PageRequest.of(page, size);
+        return todoRepository.findByUserOrderByCreatedAtDesc(user, pageable)
+                .map(TodoResponse::from);
     }
 
     public TodoResponse getTodoById(Long todoId, String email) {

@@ -5,11 +5,13 @@ import com.auth.dto.TodoResponse;
 import com.auth.dto.ErrorResponse;
 import com.auth.service.TodoService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -29,18 +31,23 @@ public class TodoController {
     }
 
     @GetMapping
-    @Operation(summary = "할 일 목록 조회", description = "현재 사용자의 모든 할 일을 조회합니다")
+    @Operation(summary = "할 일 목록 조회 (페이지네이션)", description = "현재 사용자의 할 일을 페이지네이션으로 조회합니다")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "조회 성공",
-            content = @Content(schema = @Schema(implementation = TodoResponse.class))),
+            content = @Content(schema = @Schema(implementation = Page.class))),
         @ApiResponse(responseCode = "401", description = "인증 필요"),
         @ApiResponse(responseCode = "400", description = "조회 실패",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ResponseEntity<?> getTodos(Authentication authentication) {
+    public ResponseEntity<?> getTodos(
+            @Parameter(description = "페이지 번호 (0부터 시작)", example = "0")
+            @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "페이지 크기 (10, 50, 100)", example = "10")
+            @RequestParam(defaultValue = "10") int size,
+            Authentication authentication) {
         try {
             String email = authentication.getName();
-            List<TodoResponse> todos = todoService.getTodosByEmail(email);
+            Page<TodoResponse> todos = todoService.getTodosByEmailWithPagination(email, page, size);
             return ResponseEntity.ok(todos);
         } catch (Exception e) {
             return ResponseEntity.badRequest()
