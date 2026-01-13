@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import axiosInstance from '../api/axiosConfig';
-import useAuthStore from '../store/authStore';
+import axiosInstance from '../../api/axiosConfig';
+import useAuthStore from '../../store/authStore';
 
 const Login = () => {
   const [email, setEmail] = useState('');

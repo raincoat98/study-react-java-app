@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import axiosInstance from '../api/axiosConfig';
+import axiosInstance from '../../api/axiosConfig';
 
 const Register = () => {
   const [formData, setFormData] = useState({

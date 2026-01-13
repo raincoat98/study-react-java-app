@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useTodos, useUpdateTodo, useDeleteTodo } from '../hooks/useTodoQueries';
+import { useTodos, useUpdateTodo, useDeleteTodo } from '../../hooks/useTodoQueries';
 import TodoControls from './TodoControls';
 import TodoItem from './TodoItem';
 import Pagination from './Pagination';

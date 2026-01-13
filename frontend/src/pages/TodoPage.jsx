@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
-import TodoForm from '../components/TodoForm';
-import TodoList from '../components/TodoList';
+import TodoForm from '../components/todo/TodoForm';
+import TodoList from '../components/todo/TodoList';
 
 const TodoPage = () => {
   const { isAuthenticated, logout, user } = useAuthStore();
