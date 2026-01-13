@@ -1,11 +1,24 @@
 import { useState } from 'react';
 import { useTodos, useUpdateTodo, useDeleteTodo } from '../hooks/useTodoQueries';
 
+const SORT_OPTIONS = [
+  { label: '최신순', value: 'createdAt', direction: 'desc' },
+  { label: '오래된순', value: 'createdAt', direction: 'asc' },
+  { label: '제목 가나다순', value: 'title', direction: 'asc' },
+  { label: '제목 역순', value: 'title', direction: 'desc' },
+  { label: '최근 수정순', value: 'updatedAt', direction: 'desc' },
+  { label: '오래된 수정순', value: 'updatedAt', direction: 'asc' },
+  { label: '완료되지 않은 것 먼저', value: 'completed', direction: 'asc' },
+  { label: '완료된 것 먼저', value: 'completed', direction: 'desc' },
+];
+
 const TodoList = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
+  const [sortBy, setSortBy] = useState('createdAt');
+  const [sortDirection, setSortDirection] = useState('desc');
 
-  const { data, isLoading } = useTodos(currentPage, pageSize);
+  const { data, isLoading } = useTodos(currentPage, pageSize, sortBy, sortDirection);
   const { mutate: updateTodo } = useUpdateTodo();
   const { mutate: deleteTodo } = useDeleteTodo();
 
@@ -22,6 +35,19 @@ const TodoList = () => {
   const handlePageChange = (pageNum) => {
     setCurrentPage(pageNum);
     window.scrollTo(0, 0);
+  };
+
+  const handleSortChange = (option) => {
+    setSortBy(option.value);
+    setSortDirection(option.direction);
+    setCurrentPage(0);
+  };
+
+  const getCurrentSortLabel = () => {
+    const current = SORT_OPTIONS.find(
+      (opt) => opt.value === sortBy && opt.direction === sortDirection
+    );
+    return current ? current.label : '최신순';
   };
 
   if (isLoading) {
@@ -62,13 +88,37 @@ const TodoList = () => {
 
   return (
     <div>
-      {/* 통계 및 페이지 크기 선택 */}
-      <div className="mb-6 flex justify-between items-center">
+      {/* 통계, 정렬, 페이지 크기 선택 */}
+      <div className="mb-6 flex justify-between items-center flex-wrap gap-4">
         <div className="text-sm text-gray-600">
           완료: {completedCount} / {todos.length} (전체 {totalElements}개)
         </div>
-        <div className="flex gap-2 items-center">
-          <span className="text-sm text-gray-600">표시 개수:</span>
+
+        <div className="flex gap-3 items-center flex-wrap">
+          {/* 정렬 드롭다운 */}
+          <div className="relative group">
+            <button className="text-sm px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition duration-200 flex items-center gap-1">
+              정렬: {getCurrentSortLabel()} ▼
+            </button>
+            <div className="absolute left-0 mt-0 w-48 bg-white border border-gray-300 rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+              {SORT_OPTIONS.map((option) => (
+                <button
+                  key={`${option.value}-${option.direction}`}
+                  onClick={() => handleSortChange(option)}
+                  className={`w-full text-left px-4 py-2 text-sm transition duration-200 ${
+                    sortBy === option.value && sortDirection === option.direction
+                      ? 'bg-blue-500 text-white'
+                      : 'hover:bg-gray-100 text-gray-700'
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 페이지 크기 선택 */}
+          <span className="text-sm text-gray-600">표시:</span>
           {[10, 50, 100].map((size) => (
             <button
               key={size}
@@ -82,6 +132,8 @@ const TodoList = () => {
               {size}개
             </button>
           ))}
+
+          {/* 완료된 항목 삭제 */}
           {completedCount > 0 && (
             <button
               onClick={() => {
@@ -89,7 +141,7 @@ const TodoList = () => {
                   deleteTodo(todo.id);
                 });
               }}
-              className="text-sm bg-red-100 hover:bg-red-200 text-red-600 py-1 px-3 rounded transition duration-200 ml-2"
+              className="text-sm bg-red-100 hover:bg-red-200 text-red-600 py-1 px-3 rounded transition duration-200"
             >
               완료된 항목 삭제
             </button>

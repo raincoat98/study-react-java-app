@@ -13,5 +13,17 @@ import java.util.List;
 public interface TodoRepository extends JpaRepository<Todo, Long> {
     List<Todo> findByUser(User user);
     List<Todo> findByUserOrderByCreatedAtDesc(User user);
+
+    // Pagination queries with various sort options
     Page<Todo> findByUserOrderByCreatedAtDesc(User user, Pageable pageable);
+    Page<Todo> findByUserOrderByCreatedAtAsc(User user, Pageable pageable);
+
+    Page<Todo> findByUserOrderByTitleAsc(User user, Pageable pageable);
+    Page<Todo> findByUserOrderByTitleDesc(User user, Pageable pageable);
+
+    Page<Todo> findByUserOrderByCompletedAsc(User user, Pageable pageable);
+    Page<Todo> findByUserOrderByCompletedDesc(User user, Pageable pageable);
+
+    Page<Todo> findByUserOrderByUpdatedAtDesc(User user, Pageable pageable);
+    Page<Todo> findByUserOrderByUpdatedAtAsc(User user, Pageable pageable);
 }

@@ -33,12 +33,27 @@ public class TodoService {
                 .collect(Collectors.toList());
     }
 
-    public Page<TodoResponse> getTodosByEmailWithPagination(String email, int page, int size) {
+    public Page<TodoResponse> getTodosByEmailWithPagination(String email, int page, int size, String sortBy, String sortDirection) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         Pageable pageable = PageRequest.of(page, size);
-        return todoRepository.findByUserOrderByCreatedAtDesc(user, pageable)
-                .map(TodoResponse::from);
+
+        Page<Todo> todos = switch (sortBy) {
+            case "title" -> sortDirection.equalsIgnoreCase("asc")
+                    ? todoRepository.findByUserOrderByTitleAsc(user, pageable)
+                    : todoRepository.findByUserOrderByTitleDesc(user, pageable);
+            case "completed" -> sortDirection.equalsIgnoreCase("asc")
+                    ? todoRepository.findByUserOrderByCompletedAsc(user, pageable)
+                    : todoRepository.findByUserOrderByCompletedDesc(user, pageable);
+            case "updatedAt" -> sortDirection.equalsIgnoreCase("asc")
+                    ? todoRepository.findByUserOrderByUpdatedAtAsc(user, pageable)
+                    : todoRepository.findByUserOrderByUpdatedAtDesc(user, pageable);
+            default -> sortDirection.equalsIgnoreCase("asc")
+                    ? todoRepository.findByUserOrderByCreatedAtAsc(user, pageable)
+                    : todoRepository.findByUserOrderByCreatedAtDesc(user, pageable);
+        };
+
+        return todos.map(TodoResponse::from);
     }
 
     public TodoResponse getTodoById(Long todoId, String email) {

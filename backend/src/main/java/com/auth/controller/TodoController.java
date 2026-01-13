@@ -44,10 +44,14 @@ public class TodoController {
             @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "페이지 크기 (10, 50, 100)", example = "10")
             @RequestParam(defaultValue = "10") int size,
+            @Parameter(description = "정렬 기준 (createdAt, updatedAt, title, completed)", example = "createdAt")
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @Parameter(description = "정렬 순서 (asc, desc)", example = "desc")
+            @RequestParam(defaultValue = "desc") String sortDirection,
             Authentication authentication) {
         try {
             String email = authentication.getName();
-            Page<TodoResponse> todos = todoService.getTodosByEmailWithPagination(email, page, size);
+            Page<TodoResponse> todos = todoService.getTodosByEmailWithPagination(email, page, size, sortBy, sortDirection);
             return ResponseEntity.ok(todos);
         } catch (Exception e) {
             return ResponseEntity.badRequest()
