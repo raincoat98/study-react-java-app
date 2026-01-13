@@ -1,14 +1,14 @@
 import { useState } from 'react';
-import useTodoStore from '../store/todoStore';
+import { useCreateTodo } from '../hooks/useTodoQueries';
 
 const TodoForm = () => {
   const [input, setInput] = useState('');
-  const { addTodo } = useTodoStore();
+  const { mutate: createTodo, isPending } = useCreateTodo();
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (input.trim()) {
-      addTodo(input);
+      createTodo(input);
       setInput('');
     }
   };
@@ -25,9 +25,10 @@ const TodoForm = () => {
         />
         <button
           type="submit"
-          className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition duration-200"
+          disabled={isPending}
+          className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white font-bold py-3 px-6 rounded-lg transition duration-200"
         >
-          추가
+          {isPending ? '추가 중...' : '추가'}
         </button>
       </div>
     </form>

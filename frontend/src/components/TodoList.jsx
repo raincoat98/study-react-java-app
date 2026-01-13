@@ -1,7 +1,17 @@
-import useTodoStore from '../store/todoStore';
+import { useTodos, useUpdateTodo, useDeleteTodo } from '../hooks/useTodoQueries';
 
 const TodoList = () => {
-  const { todos, toggleTodo, deleteTodo, clearCompleted } = useTodoStore();
+  const { data: todos = [], isLoading } = useTodos();
+  const { mutate: updateTodo } = useUpdateTodo();
+  const { mutate: deleteTodo } = useDeleteTodo();
+
+  if (isLoading) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-500 text-lg">할 일을 불러오는 중...</p>
+      </div>
+    );
+  }
 
   if (todos.length === 0) {
     return (
@@ -21,7 +31,11 @@ const TodoList = () => {
         </div>
         {completedCount > 0 && (
           <button
-            onClick={clearCompleted}
+            onClick={() => {
+              todos.filter(todo => todo.completed).forEach(todo => {
+                deleteTodo(todo.id);
+              });
+            }}
             className="text-sm bg-red-100 hover:bg-red-200 text-red-600 py-1 px-3 rounded transition duration-200"
           >
             완료된 항목 삭제
@@ -38,7 +52,7 @@ const TodoList = () => {
             <input
               type="checkbox"
               checked={todo.completed}
-              onChange={() => toggleTodo(todo.id)}
+              onChange={() => updateTodo({ id: todo.id, title: todo.title, completed: !todo.completed })}
               className="w-5 h-5 text-blue-500 rounded cursor-pointer"
             />
             <span
