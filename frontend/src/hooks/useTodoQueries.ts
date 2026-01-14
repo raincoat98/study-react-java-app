@@ -25,7 +25,7 @@ interface UpdateTodoPayload {
 
 // Get todos for current user with pagination and sorting
 export const useTodos = (page: number = 0, size: number = 10, sortBy: string = 'createdAt', sortDirection: string = 'desc') => {
-  return useQuery({
+  return useQuery<TodosResponse>({
     queryKey: ['todos', page, size, sortBy, sortDirection],
     queryFn: async () => {
       const response = await axiosInstance.get(
