@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, FC, FormEvent, ChangeEvent } from 'react';
 import { useCreateTodo } from '../../hooks/useTodoQueries';
 
-const TodoForm = () => {
-  const [input, setInput] = useState('');
+const TodoForm: FC = () => {
+  const [input, setInput] = useState<string>('');
   const { mutate: createTodo, isPending } = useCreateTodo();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     if (input.trim()) {
       createTodo(input);
@@ -19,7 +19,7 @@ const TodoForm = () => {
         <input
           type="text"
           value={input}
-          onChange={(e) => setInput(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
           placeholder="새로운 할 일을 입력하세요..."
           className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />

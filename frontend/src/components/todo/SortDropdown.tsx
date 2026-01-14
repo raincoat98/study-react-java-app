@@ -1,4 +1,18 @@
-const SORT_OPTIONS = [
+import { FC } from 'react';
+
+interface SortOption {
+  label: string;
+  value: string;
+  direction: string;
+}
+
+interface SortDropdownProps {
+  sortBy: string;
+  sortDirection: string;
+  onSortChange: (option: SortOption) => void;
+}
+
+const SORT_OPTIONS: SortOption[] = [
   { label: '최신순', value: 'createdAt', direction: 'desc' },
   { label: '오래된순', value: 'createdAt', direction: 'asc' },
   { label: '제목 가나다순', value: 'title', direction: 'asc' },
@@ -9,8 +23,8 @@ const SORT_OPTIONS = [
   { label: '완료된 것 먼저', value: 'completed', direction: 'desc' },
 ];
 
-const SortDropdown = ({ sortBy, sortDirection, onSortChange }) => {
-  const getCurrentLabel = () => {
+const SortDropdown: FC<SortDropdownProps> = ({ sortBy, sortDirection, onSortChange }) => {
+  const getCurrentLabel = (): string => {
     const current = SORT_OPTIONS.find(
       (opt) => opt.value === sortBy && opt.direction === sortDirection
     );

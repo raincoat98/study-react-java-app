@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, FC } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
 
-const Dashboard = () => {
+const Dashboard: FC = () => {
   const { user, isAuthenticated, logout } = useAuthStore();
   const navigate = useNavigate();
 
@@ -12,7 +12,7 @@ const Dashboard = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  const handleLogout = () => {
+  const handleLogout = (): void => {
     logout();
     navigate('/login');
   };

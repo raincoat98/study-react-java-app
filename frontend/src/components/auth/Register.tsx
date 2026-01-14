@@ -1,20 +1,34 @@
-import { useState } from 'react';
+import { useState, FC, FormEvent, ChangeEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 import axiosInstance from '../../api/axiosConfig';
 
-const Register = () => {
-  const [formData, setFormData] = useState({
+interface RegisterFormData {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+
+interface RegisterPayload {
+  name: string;
+  email: string;
+  password: string;
+}
+
+const Register: FC = () => {
+  const [formData, setFormData] = useState<RegisterFormData>({
     name: '',
     email: '',
     password: '',
     confirmPassword: '',
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string>('');
   const navigate = useNavigate();
 
-  const registerMutation = useMutation({
-    mutationFn: (data) =>
+  const registerMutation = useMutation<any, AxiosError, RegisterPayload>({
+    mutationFn: (data: RegisterPayload) =>
       axiosInstance.post('/auth/register', {
         name: data.name,
         email: data.email,
@@ -29,7 +43,7 @@ const Register = () => {
     },
   });
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -37,7 +51,7 @@ const Register = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     setError('');
 

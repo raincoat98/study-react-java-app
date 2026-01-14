@@ -2,7 +2,33 @@ import { create } from 'zustand';
 import { jwtDecode } from 'jwt-decode';
 import axiosInstance from '../api/axiosConfig';
 
-const useAuthStore = create((set) => ({
+interface DecodedToken {
+  exp?: number;
+  sub?: string;
+  [key: string]: any;
+}
+
+interface User {
+  email: string;
+  [key: string]: any;
+}
+
+interface AuthStore {
+  user: User | null;
+  token: string | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  isInitialized: boolean;
+  error: string | null;
+  initAuth: () => Promise<void>;
+  login: (user: User, token: string) => void;
+  logout: () => void;
+  setError: (error: string | null) => void;
+  setLoading: (isLoading: boolean) => void;
+  clearError: () => void;
+}
+
+const useAuthStore = create<AuthStore>((set) => ({
   user: null,
   token: null,
   isAuthenticated: false,
@@ -16,8 +42,8 @@ const useAuthStore = create((set) => ({
     const token = localStorage.getItem('token');
     if (token) {
       try {
-        const decoded = jwtDecode(token);
-        if (decoded.exp * 1000 > Date.now()) {
+        const decoded = jwtDecode<DecodedToken>(token);
+        if (decoded.exp && decoded.exp * 1000 > Date.now()) {
           // 토큰이 유효하면 백엔드에서 사용자 정보 조회
           try {
             const response = await axiosInstance.get('/auth/me');
@@ -32,7 +58,7 @@ const useAuthStore = create((set) => ({
             // 사용자 정보 조회 실패 시 최소한의 정보만 사용
             set({
               token,
-              user: { email: decoded.sub },
+              user: { email: decoded.sub || 'unknown' },
               isAuthenticated: true,
               isLoading: false,
               isInitialized: true,

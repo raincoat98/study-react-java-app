@@ -1,6 +1,14 @@
-const Pagination = ({ currentPage, totalPages, onPageChange }) => {
-  const getPageNumbers = () => {
-    const pages = [];
+import { FC } from 'react';
+
+interface PaginationProps {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (pageNum: number) => void;
+}
+
+const Pagination: FC<PaginationProps> = ({ currentPage, totalPages, onPageChange }) => {
+  const getPageNumbers = (): number[] => {
+    const pages: number[] = [];
     const maxPagesShown = 5;
     let startPage = Math.max(0, currentPage - 2);
     let endPage = Math.min(totalPages - 1, startPage + maxPagesShown - 1);

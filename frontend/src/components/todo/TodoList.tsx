@@ -1,14 +1,19 @@
-import { useState } from 'react';
+import { useState, FC } from 'react';
 import { useTodos, useUpdateTodo, useDeleteTodo } from '../../hooks/useTodoQueries';
 import TodoControls from './TodoControls';
 import TodoItem from './TodoItem';
 import Pagination from './Pagination';
 
-const TodoList = () => {
-  const [currentPage, setCurrentPage] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
-  const [sortBy, setSortBy] = useState('createdAt');
-  const [sortDirection, setSortDirection] = useState('desc');
+interface SortOption {
+  value: string;
+  direction: string;
+}
+
+const TodoList: FC = () => {
+  const [currentPage, setCurrentPage] = useState<number>(0);
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [sortBy, setSortBy] = useState<string>('createdAt');
+  const [sortDirection, setSortDirection] = useState<string>('desc');
 
   const { data, isLoading } = useTodos(currentPage, pageSize, sortBy, sortDirection);
   const { mutate: updateTodo } = useUpdateTodo();
@@ -19,23 +24,23 @@ const TodoList = () => {
   const totalElements = data?.totalElements || 0;
   const completedCount = todos.filter((todo) => todo.completed).length;
 
-  const handlePageSizeChange = (newSize) => {
+  const handlePageSizeChange = (newSize: number): void => {
     setPageSize(newSize);
     setCurrentPage(0);
   };
 
-  const handlePageChange = (pageNum) => {
+  const handlePageChange = (pageNum: number): void => {
     setCurrentPage(pageNum);
     window.scrollTo(0, 0);
   };
 
-  const handleSortChange = (option) => {
+  const handleSortChange = (option: SortOption): void => {
     setSortBy(option.value);
     setSortDirection(option.direction);
     setCurrentPage(0);
   };
 
-  const handleDeleteCompleted = () => {
+  const handleDeleteCompleted = (): void => {
     todos.filter(todo => todo.completed).forEach(todo => {
       deleteTodo(todo.id);
     });

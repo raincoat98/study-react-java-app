@@ -1,8 +1,30 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axiosInstance from '../api/axiosConfig';
 
+interface Todo {
+  id: number;
+  title: string;
+  completed: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface TodosResponse {
+  content: Todo[];
+  totalElements: number;
+  totalPages: number;
+  currentPage: number;
+  size: number;
+}
+
+interface UpdateTodoPayload {
+  id: number;
+  title: string;
+  completed: boolean;
+}
+
 // Get todos for current user with pagination and sorting
-export const useTodos = (page = 0, size = 10, sortBy = 'createdAt', sortDirection = 'desc') => {
+export const useTodos = (page: number = 0, size: number = 10, sortBy: string = 'createdAt', sortDirection: string = 'desc') => {
   return useQuery({
     queryKey: ['todos', page, size, sortBy, sortDirection],
     queryFn: async () => {
@@ -18,8 +40,8 @@ export const useTodos = (page = 0, size = 10, sortBy = 'createdAt', sortDirectio
 export const useCreateTodo = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async (title) => {
+  return useMutation<Todo, Error, string>({
+    mutationFn: async (title: string) => {
       const response = await axiosInstance.post('/todos', {
         title,
         completed: false,
@@ -36,8 +58,8 @@ export const useCreateTodo = () => {
 export const useUpdateTodo = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async ({ id, title, completed }) => {
+  return useMutation<Todo, Error, UpdateTodoPayload>({
+    mutationFn: async ({ id, title, completed }: UpdateTodoPayload) => {
       const response = await axiosInstance.put(`/todos/${id}`, {
         title,
         completed,
@@ -54,8 +76,8 @@ export const useUpdateTodo = () => {
 export const useDeleteTodo = () => {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async (id) => {
+  return useMutation<void, Error, number>({
+    mutationFn: async (id: number) => {
       await axiosInstance.delete(`/todos/${id}`);
     },
     onSuccess: () => {

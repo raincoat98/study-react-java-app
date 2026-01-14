@@ -1,17 +1,28 @@
-import { useState } from 'react';
+import { useState, FC, FormEvent, ChangeEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, UseMutationResult } from '@tanstack/react-query';
+import { AxiosResponse, AxiosError } from 'axios';
 import axiosInstance from '../../api/axiosConfig';
 import useAuthStore from '../../store/authStore';
 
-const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+interface LoginResponse {
+  token: string;
+  user: { email: string; [key: string]: any };
+}
+
+const Login: FC = () => {
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
   const navigate = useNavigate();
   const { login, setError, clearError } = useAuthStore();
 
-  const loginMutation = useMutation({
-    mutationFn: (credentials) =>
+  const loginMutation = useMutation<AxiosResponse<LoginResponse>, AxiosError, LoginCredentials>({
+    mutationFn: (credentials: LoginCredentials) =>
       axiosInstance.post('/auth/login', credentials),
     onSuccess: (response) => {
       const { token, user } = response.data;
@@ -23,7 +34,7 @@ const Login = () => {
     },
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     clearError();
     if (!email || !password) {
@@ -48,7 +59,7 @@ const Login = () => {
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="your@email.com"
             />
@@ -61,7 +72,7 @@ const Login = () => {
             <input
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="••••••••"
             />

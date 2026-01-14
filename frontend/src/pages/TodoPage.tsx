@@ -1,10 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, FC } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
 import TodoForm from '../components/todo/TodoForm';
 import TodoList from '../components/todo/TodoList';
 
-const TodoPage = () => {
+const TodoPage: FC = () => {
   const { isAuthenticated, logout, user } = useAuthStore();
   const navigate = useNavigate();
 
@@ -14,7 +14,7 @@ const TodoPage = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  const handleLogout = () => {
+  const handleLogout = (): void => {
     logout();
     navigate('/login');
   };

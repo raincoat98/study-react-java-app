@@ -1,6 +1,25 @@
+import { FC } from 'react';
 import SortDropdown from './SortDropdown';
 
-const TodoControls = ({
+interface SortOption {
+  label: string;
+  value: string;
+  direction: string;
+}
+
+interface TodoControlsProps {
+  completedCount: number;
+  currentPageCount: number;
+  totalElements: number;
+  sortBy: string;
+  sortDirection: string;
+  pageSize: number;
+  onSortChange: (option: SortOption) => void;
+  onPageSizeChange: (size: number) => void;
+  onDeleteCompleted: () => void;
+}
+
+const TodoControls: FC<TodoControlsProps> = ({
   completedCount,
   currentPageCount,
   totalElements,
