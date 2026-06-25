@@ -10,6 +10,8 @@ frontend/.vite/
 
 # Backend
 backend/target/
+backend/data/
+data/
 backend/.classpath
 backend/.project
 backend/.settings/
