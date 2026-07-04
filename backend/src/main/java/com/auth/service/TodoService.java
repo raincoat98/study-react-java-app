@@ -4,6 +4,8 @@ import com.auth.dto.TodoRequest;
 import com.auth.dto.TodoResponse;
 import com.auth.entity.Todo;
 import com.auth.entity.User;
+import com.auth.exception.BusinessException;
+import com.auth.exception.ErrorCode;
 import com.auth.repository.TodoRepository;
 import com.auth.repository.UserRepository;
 import org.springframework.data.domain.Page;
@@ -26,7 +28,7 @@ public class TodoService {
 
     public List<TodoResponse> getTodosByEmail(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
         return todoRepository.findByUserOrderByCreatedAtDesc(user)
                 .stream()
                 .map(TodoResponse::from)
@@ -35,7 +37,7 @@ public class TodoService {
 
     public Page<TodoResponse> getTodosByEmailWithPagination(String email, int page, int size, String sortBy, String sortDirection) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
         Pageable pageable = PageRequest.of(page, size);
 
         Page<Todo> todos = switch (sortBy) {
@@ -58,13 +60,13 @@ public class TodoService {
 
     public TodoResponse getTodoById(Long todoId, String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         Todo todo = todoRepository.findById(todoId)
-                .orElseThrow(() -> new RuntimeException("Todo not found"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.TODO_NOT_FOUND));
 
         if (!todo.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Unauthorized access");
+            throw new BusinessException(ErrorCode.FORBIDDEN_ACCESS);
         }
 
         return TodoResponse.from(todo);
@@ -72,7 +74,7 @@ public class TodoService {
 
     public TodoResponse createTodo(TodoRequest request, String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         Todo todo = new Todo(request.getTitle(), user);
         if (request.getCompleted() != null) {
@@ -85,13 +87,13 @@ public class TodoService {
 
     public TodoResponse updateTodo(Long todoId, TodoRequest request, String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         Todo todo = todoRepository.findById(todoId)
-                .orElseThrow(() -> new RuntimeException("Todo not found"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.TODO_NOT_FOUND));
 
         if (!todo.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Unauthorized access");
+            throw new BusinessException(ErrorCode.FORBIDDEN_ACCESS);
         }
 
         if (request.getTitle() != null) {
@@ -107,13 +109,13 @@ public class TodoService {
 
     public void deleteTodo(Long todoId, String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         Todo todo = todoRepository.findById(todoId)
-                .orElseThrow(() -> new RuntimeException("Todo not found"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.TODO_NOT_FOUND));
 
         if (!todo.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Unauthorized access");
+            throw new BusinessException(ErrorCode.FORBIDDEN_ACCESS);
         }
 
         todoRepository.deleteById(todoId);

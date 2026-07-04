@@ -2,6 +2,8 @@ package com.auth.service;
 
 import com.auth.dto.*;
 import com.auth.entity.User;
+import com.auth.exception.BusinessException;
+import com.auth.exception.ErrorCode;
 import com.auth.repository.UserRepository;
 import com.auth.security.JwtTokenProvider;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -32,7 +34,7 @@ public class AuthService {
 
         String token = jwtTokenProvider.generateToken(authentication);
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         return AuthResponse.builder()
                 .token(token)
@@ -42,7 +44,7 @@ public class AuthService {
 
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already in use");
+            throw new BusinessException(ErrorCode.EMAIL_ALREADY_IN_USE);
         }
 
         User user = User.builder()
@@ -64,7 +66,7 @@ public class AuthService {
 
     public UserResponse getUserInfo(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
         return UserResponse.from(user);
     }
 }
