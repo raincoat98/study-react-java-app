@@ -4,6 +4,7 @@ import com.auth.dto.TodoRequest;
 import com.auth.dto.TodoResponse;
 import com.auth.dto.ErrorResponse;
 import com.auth.service.TodoService;
+import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,8 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/todos")
@@ -49,14 +48,9 @@ public class TodoController {
             @Parameter(description = "정렬 순서 (asc, desc)", example = "desc")
             @RequestParam(defaultValue = "desc") String sortDirection,
             Authentication authentication) {
-        try {
-            String email = authentication.getName();
-            Page<TodoResponse> todos = todoService.getTodosByEmailWithPagination(email, page, size, sortBy, sortDirection);
-            return ResponseEntity.ok(todos);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest()
-                    .body(new ErrorResponse("할 일 조회 실패: " + e.getMessage()));
-        }
+        String email = authentication.getName();
+        Page<TodoResponse> todos = todoService.getTodosByEmailWithPagination(email, page, size, sortBy, sortDirection);
+        return ResponseEntity.ok(todos);
     }
 
     @GetMapping("/{id}")
@@ -70,15 +64,9 @@ public class TodoController {
         @ApiResponse(responseCode = "400", description = "조회 실패",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ResponseEntity<?> getTodoById(@PathVariable Long id, Authentication authentication) {
-        try {
-            String email = authentication.getName();
-            TodoResponse todo = todoService.getTodoById(id, email);
-            return ResponseEntity.ok(todo);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest()
-                    .body(new ErrorResponse("할 일 조회 실패: " + e.getMessage()));
-        }
+    public ResponseEntity<TodoResponse> getTodoById(@PathVariable Long id, Authentication authentication) {
+        String email = authentication.getName();
+        return ResponseEntity.ok(todoService.getTodoById(id, email));
     }
 
     @PostMapping
@@ -90,15 +78,10 @@ public class TodoController {
         @ApiResponse(responseCode = "400", description = "생성 실패",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ResponseEntity<?> createTodo(@RequestBody TodoRequest request, Authentication authentication) {
-        try {
-            String email = authentication.getName();
-            TodoResponse todo = todoService.createTodo(request, email);
-            return ResponseEntity.status(HttpStatus.CREATED).body(todo);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest()
-                    .body(new ErrorResponse("할 일 생성 실패: " + e.getMessage()));
-        }
+    public ResponseEntity<TodoResponse> createTodo(@Valid @RequestBody TodoRequest request, Authentication authentication) {
+        String email = authentication.getName();
+        TodoResponse todo = todoService.createTodo(request, email);
+        return ResponseEntity.status(HttpStatus.CREATED).body(todo);
     }
 
     @PutMapping("/{id}")
@@ -112,15 +95,9 @@ public class TodoController {
         @ApiResponse(responseCode = "400", description = "수정 실패",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ResponseEntity<?> updateTodo(@PathVariable Long id, @RequestBody TodoRequest request, Authentication authentication) {
-        try {
-            String email = authentication.getName();
-            TodoResponse todo = todoService.updateTodo(id, request, email);
-            return ResponseEntity.ok(todo);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest()
-                    .body(new ErrorResponse("할 일 수정 실패: " + e.getMessage()));
-        }
+    public ResponseEntity<TodoResponse> updateTodo(@PathVariable Long id, @RequestBody TodoRequest request, Authentication authentication) {
+        String email = authentication.getName();
+        return ResponseEntity.ok(todoService.updateTodo(id, request, email));
     }
 
     @DeleteMapping("/{id}")
@@ -133,14 +110,9 @@ public class TodoController {
         @ApiResponse(responseCode = "400", description = "삭제 실패",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ResponseEntity<?> deleteTodo(@PathVariable Long id, Authentication authentication) {
-        try {
-            String email = authentication.getName();
-            todoService.deleteTodo(id, email);
-            return ResponseEntity.noContent().build();
-        } catch (Exception e) {
-            return ResponseEntity.badRequest()
-                    .body(new ErrorResponse("할 일 삭제 실패: " + e.getMessage()));
-        }
+    public ResponseEntity<Void> deleteTodo(@PathVariable Long id, Authentication authentication) {
+        String email = authentication.getName();
+        todoService.deleteTodo(id, email);
+        return ResponseEntity.noContent().build();
     }
 }

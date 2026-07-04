@@ -2,6 +2,7 @@ package com.auth.controller;
 
 import com.auth.dto.*;
 import com.auth.service.AuthService;
+import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -31,14 +32,8 @@ public class AuthController {
         @ApiResponse(responseCode = "400", description = "로그인 실패",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-        try {
-            AuthResponse response = authService.login(loginRequest);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest()
-                    .body(new ErrorResponse("로그인 실패: " + e.getMessage()));
-        }
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
+        return ResponseEntity.ok(authService.login(loginRequest));
     }
 
     @PostMapping("/register")
@@ -49,14 +44,8 @@ public class AuthController {
         @ApiResponse(responseCode = "400", description = "회원가입 실패",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
-        try {
-            AuthResponse response = authService.register(registerRequest);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest()
-                    .body(new ErrorResponse("회원가입 실패: " + e.getMessage()));
-        }
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest registerRequest) {
+        return ResponseEntity.ok(authService.register(registerRequest));
     }
 
     @GetMapping("/me")
@@ -68,14 +57,8 @@ public class AuthController {
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
         @ApiResponse(responseCode = "401", description = "인증 필요")
     })
-    public ResponseEntity<?> getCurrentUser(Authentication authentication) {
-        try {
-            String email = authentication.getName();
-            UserResponse user = authService.getUserInfo(email);
-            return ResponseEntity.ok(user);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest()
-                    .body(new ErrorResponse("사용자 정보 조회 실패: " + e.getMessage()));
-        }
+    public ResponseEntity<UserResponse> getCurrentUser(Authentication authentication) {
+        String email = authentication.getName();
+        return ResponseEntity.ok(authService.getUserInfo(email));
     }
 }

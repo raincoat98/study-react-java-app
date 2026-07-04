@@ -1,7 +1,11 @@
 package com.auth.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 public class TodoRequest {
+    @NotBlank(message = "제목을 입력하세요")
     private String title;
+
     private Boolean completed;
 
     public TodoRequest() {
