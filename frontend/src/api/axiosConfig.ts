@@ -23,11 +23,17 @@ axiosInstance.interceptors.request.use(
   }
 );
 
-// 응답 인터셉터 - 401 에러 처리
+// 인증 엔드포인트 - 로그인/회원가입 실패(401)는 화면에서 메시지로 처리하므로 리다이렉트 제외
+const AUTH_ENDPOINTS = ['/auth/login', '/auth/register'];
+
+// 응답 인터셉터 - 토큰 만료 등으로 인한 401 시 로그아웃 처리
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error: AxiosError) => {
-    if (error.response?.status === 401) {
+    const requestUrl = error.config?.url ?? '';
+    const isAuthRequest = AUTH_ENDPOINTS.some((endpoint) => requestUrl.includes(endpoint));
+
+    if (error.response?.status === 401 && !isAuthRequest) {
       localStorage.removeItem('token');
       window.location.href = '/login';
     }

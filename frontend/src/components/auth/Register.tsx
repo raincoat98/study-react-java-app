@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import axiosInstance from '../../api/axiosConfig';
+import { ApiErrorResponse, getErrorMessage, getFieldErrors } from '../../api/errors';
 
 interface RegisterFormData {
   name: string;
@@ -25,9 +26,10 @@ const Register: FC = () => {
     confirmPassword: '',
   });
   const [error, setError] = useState<string>('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const navigate = useNavigate();
 
-  const registerMutation = useMutation<any, AxiosError, RegisterPayload>({
+  const registerMutation = useMutation<any, AxiosError<ApiErrorResponse>, RegisterPayload>({
     mutationFn: (data: RegisterPayload) =>
       axiosInstance.post('/auth/register', {
         name: data.name,
@@ -39,7 +41,8 @@ const Register: FC = () => {
       navigate('/login');
     },
     onError: (error) => {
-      setError(error.response?.data?.message || '회원가입 실패');
+      setFieldErrors(getFieldErrors(error));
+      setError(getErrorMessage(error, '회원가입 실패'));
     },
   });
 
@@ -54,6 +57,7 @@ const Register: FC = () => {
   const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     setError('');
+    setFieldErrors({});
 
     if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
       setError('모든 필드를 입력하세요');
@@ -65,8 +69,8 @@ const Register: FC = () => {
       return;
     }
 
-    if (formData.password.length < 6) {
-      setError('비밀번호는 6자 이상이어야 합니다');
+    if (formData.password.length < 8) {
+      setError('비밀번호는 8자 이상이어야 합니다');
       return;
     }
 
@@ -93,6 +97,9 @@ const Register: FC = () => {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
               placeholder="이름"
             />
+            {fieldErrors.name && (
+              <p className="text-red-600 text-sm mt-1">{fieldErrors.name}</p>
+            )}
           </div>
 
           <div>
@@ -107,6 +114,9 @@ const Register: FC = () => {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
               placeholder="your@email.com"
             />
+            {fieldErrors.email && (
+              <p className="text-red-600 text-sm mt-1">{fieldErrors.email}</p>
+            )}
           </div>
 
           <div>
@@ -121,6 +131,9 @@ const Register: FC = () => {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
               placeholder="••••••••"
             />
+            {fieldErrors.password && (
+              <p className="text-red-600 text-sm mt-1">{fieldErrors.password}</p>
+            )}
           </div>
 
           <div>

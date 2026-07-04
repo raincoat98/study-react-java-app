@@ -4,6 +4,7 @@ import { useMutation, UseMutationResult } from '@tanstack/react-query';
 import { AxiosResponse, AxiosError } from 'axios';
 import axiosInstance from '../../api/axiosConfig';
 import useAuthStore from '../../store/authStore';
+import { ApiErrorResponse, getErrorMessage, getFieldErrors } from '../../api/errors';
 
 interface LoginCredentials {
   email: string;
@@ -18,10 +19,11 @@ interface LoginResponse {
 const Login: FC = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const navigate = useNavigate();
   const { login, setError, clearError } = useAuthStore();
 
-  const loginMutation = useMutation<AxiosResponse<LoginResponse>, AxiosError, LoginCredentials>({
+  const loginMutation = useMutation<AxiosResponse<LoginResponse>, AxiosError<ApiErrorResponse>, LoginCredentials>({
     mutationFn: (credentials: LoginCredentials) =>
       axiosInstance.post('/auth/login', credentials),
     onSuccess: (response) => {
@@ -30,13 +32,15 @@ const Login: FC = () => {
       navigate('/dashboard');
     },
     onError: (error) => {
-      setError(error.response?.data?.message || '로그인 실패');
+      setFieldErrors(getFieldErrors(error));
+      setError(getErrorMessage(error, '로그인 실패'));
     },
   });
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     clearError();
+    setFieldErrors({});
     if (!email || !password) {
       setError('이메일과 비밀번호를 입력하세요');
       return;
@@ -63,6 +67,9 @@ const Login: FC = () => {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="your@email.com"
             />
+            {fieldErrors.email && (
+              <p className="text-red-600 text-sm mt-1">{fieldErrors.email}</p>
+            )}
           </div>
 
           <div>
@@ -76,11 +83,14 @@ const Login: FC = () => {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="••••••••"
             />
+            {fieldErrors.password && (
+              <p className="text-red-600 text-sm mt-1">{fieldErrors.password}</p>
+            )}
           </div>
 
           {loginMutation.isError && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-              {loginMutation.error?.response?.data?.message || '로그인 실패'}
+              {getErrorMessage(loginMutation.error, '로그인 실패')}
             </div>
           )}
 
